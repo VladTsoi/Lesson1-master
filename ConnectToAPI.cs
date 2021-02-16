@@ -4,11 +4,11 @@ using System.Net;
 
 namespace Zadanie
 {
-    class SearchCountryInfo
+    class ConnectToAPI : Form1
     {
         public string textSearch;
 
-        public Country GetSearch()
+        public Country Search()
         {
             string countrystring = "https://restcountries.eu/rest/v2/name/" + textSearch;
             WebRequest request = WebRequest.Create(countrystring);

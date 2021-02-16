@@ -8,17 +8,18 @@ namespace Zadanie
 {
     public partial class Form1 : Form
     {
-        string connString = ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
-        
+        public string connString = ConfigurationManager.ConnectionStrings["myConnectionString"].ConnectionString;
+        public SqlConnection conn;
+
         public Form1()
         {
             InitializeComponent();
             CountryDataBase();
         }
 
-        private void CountryDataBase()
+        private void CountryDataBase()//Показ данных на форме
         {
-            SqlConnection conn = new SqlConnection(connString);
+            conn = new SqlConnection(connString);
             dataGridView1.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             dataGridView1.AllowUserToAddRows = false;
             using (SqlDataAdapter adapter = new SqlDataAdapter("SELECT c.Id, c.Name AS 'Название', c.Code AS 'Код страны', " +
@@ -42,12 +43,13 @@ namespace Zadanie
             {
                 try
                 {
-                    PrintCountryInfo();
+                    CountryInfo();
                 }
                 catch
                 {
                     MessageBox.Show("Страна " + textBoxSearch.Text + " не найдена");
                 }
+
             }
         }
 
@@ -56,32 +58,18 @@ namespace Zadanie
             CountryDataBase();
         }
 
-        private void PrintCountryInfo()
+        private void CountryInfo()
         {
-            SearchCountryInfo search = new SearchCountryInfo { textSearch = textBoxSearch.Text };
-            Country country = search.GetSearch();
+            var search = new ConnectToAPI { textSearch = textBoxSearch.Text };
+            Country country = search.Search();
             label_area.Text = country.area.ToString() + " кв.км";
             label_cap.Text = country.capital;
             label_code.Text = country.numericCode.ToString();
             label_country.Text = country.name;
             label_pop.Text = country.population.ToString() + " чел.";
             label_reg.Text = country.region;
-            DialogResult vibor = MessageBox.Show("Хотите сохранить информацию в базу данных?", "Да или нет", MessageBoxButtons.YesNo);
-
-            if (vibor == DialogResult.Yes)
-            {
-                try
-                {
-                    SaveCountryInfo saveCountryInfo = new SaveCountryInfo { _country = search.GetSearch() };
-                    string SaveCity = saveCountryInfo.GetSaveCity();
-                    string SaveRegion = saveCountryInfo.GetSaveRegion();
-                    saveCountryInfo.GetSaveCountry(SaveCity, SaveRegion);
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка: " + ex.Message);
-                }
-            }
+            WorkWithDatabaseCountry searchString = new WorkWithDatabaseCountry();
+            searchString.PrintCountryInfo(country);           
         }
     }
 }
